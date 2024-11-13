@@ -28,7 +28,6 @@ class AuthController extends Controller
 
         $user = User::create($validatedData);
 
-        //Auth::login($user);
         $token = auth('api')->login($user);
 
         //event(new Registered($user));
@@ -36,6 +35,19 @@ class AuthController extends Controller
         return $this->respondWithToken($token);
 
         //return response()->json(['message' => 'User registered, please check your email for verification link.']);
+    }
+
+
+    // Login method
+    public function login(Request $request)
+    {
+        $credentials = $request->only('email', 'password');
+
+        if (!$token = auth('api')->attempt($credentials)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        return $this->respondWithToken($token);
     }
 
 
