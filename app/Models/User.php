@@ -14,11 +14,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     use HasApiTokens, HasFactory, Notifiable;
 
 
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    protected $fillable = ['name', 'email', 'password', 'role'];
 
     protected $hidden = [
         'password',
@@ -37,5 +33,10 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function items()
+    {
+        return $this->hasMany(Item::class);
     }
 }
