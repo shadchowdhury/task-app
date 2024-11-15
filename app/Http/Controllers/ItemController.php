@@ -5,31 +5,46 @@ namespace App\Http\Controllers;
 use App\Models\Item;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class ItemController extends Controller
 {
-    // Get all items belonging to the authenticated user
+    // Get all items belonging to the Authenticated User
     public function index()
     {
         $items = auth('api')->user()->items;
-        return response()->json($items);
+        return response()->json([
+            'message' => 'All items belonging to the authenticated user',
+            'data' => $items,
+        ], 201);
     }
 
-    // Create a new item with status set to "pending" by default
+    // Create a new item with status which will be "pending" by default
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
+        $validatedData = Validator::make($request->all(), [
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string'],
         ]);
+
+        if ($validatedData->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validatedData->errors(),
+            ], 422);
+        }
 
         $item = auth('api')->user()->items()->create([
-            'title' => $validatedData['title'],
-            'description' => $validatedData['description'],
-            'status' => 'pending', // Default to "pending" status
+            'title' => $request->title,
+            'description' => $request->description,
+            'status' => 'pending',
         ]);
 
-        return response()->json($item, 201);
+        return response()->json([
+            'message' => 'Success, One new item is added successfully!',
+            'data' => $item,
+        ], 201);
     }
 
     // Update an existing item owned by the authenticated user
@@ -37,14 +52,29 @@ class ItemController extends Controller
     {
         $item = Item::where('id', $id)->where('user_id', auth('api')->id())->firstOrFail();
 
-        $validatedData = $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|required|string',
+        $validatedData = Validator::make($request->all(), [
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string'],
         ]);
 
-        $item->update($validatedData);
+        if ($validatedData->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validatedData->errors(),
+            ], 422);
+        }
 
-        return response()->json($item);
+        $item->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'status' => 'pending',
+        ]);
+
+        return response()->json([
+            'message' => 'Success! Item has been updated successfully.',
+            'data' => $item,
+        ]);
     }
 
     // Delete an item owned by the authenticated user
