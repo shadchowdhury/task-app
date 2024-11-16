@@ -4,15 +4,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\ResetPasswordController;
 
 
 Route::group(['prefix' => 'auth'], function ($router) {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
 
-    // Route::post('/forgot-password', [AuthController::class, 'passwordEmail']);
-    // Route::get('/reset-password/{token}', [AuthController::class, 'passwordReset'])->name('password.reset');
-    // Route::post('/reset-password', [AuthController::class, 'passwordUpdate'])->name('password.update');
+    Route::post('/forgot-password', [ResetPasswordController::class, 'passwordEmail']);
+    Route::post('/reset-password', [ResetPasswordController::class, 'passwordUpdate']);
 });
 
 Route::middleware('auth:api')->group(function () {

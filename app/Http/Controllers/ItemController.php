@@ -12,7 +12,8 @@ class ItemController extends Controller
     // Get all items belonging to the Authenticated User
     public function index()
     {
-        $items = auth('api')->user()->items;
+        // $items = auth('api')->user()->items;
+        $items = Item::whereUserId(Auth::guard('api')->id)->pageinate(10);
         return response()->json([
             'message' => 'All items belonging to the authenticated user',
             'data' => $items,
